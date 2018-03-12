@@ -71,7 +71,7 @@ module ApiHelp
           puts ""
           puts "SCOPES:"
           puts "-----------------"
-          scopes.sort_by { |k| k }.each { |scope|
+          scopes.sort_by { |k| k.to_s }.each { |scope|
             scope_params = scope_meta.select { |r| r.select { |k, v| k == scope } }.flatten.first[scope]
 
             if scope_params and scope_params.any?

@@ -62,22 +62,25 @@ module ApiHelp
       results = results + self.methods.select { |m| m.to_s.downcase[search.downcase] }
       results = results.uniq
 
+      registered_methods = ([self] + ancestors).map { |klass| api_help_methods[klass] }.flatten.compact.uniq.map(&:name).map(&:to_s)
+      results = results.reject { |m| registered_methods.include?(m.to_s) }
+
       if results.any?
         render_methods(search: search, instance: instance, methods: results.map { |m| OpenStruct.new(name: m) }, title: 'SEE ALSO THESE METHODS')
       end
     end
 
     def self.render_methods(search: nil, instance: nil, methods: nil, title: nil)
-      puts ""
-      puts "#{title || 'METHODS'}:"
-      puts "-----------------"
-
       # Search for definitions for this class and all its ancestors (included Modules as well)
       methods = methods || ([self] + ancestors).map { |klass| api_help_methods[klass] }.flatten.compact.uniq
 
       methods = methods.select { |r| r.name.to_s.downcase[search.downcase] } if search # Apply filtering
 
       if methods.any?
+        puts ""
+        puts "#{title || 'METHODS'}:"
+        puts "-----------------"
+
         methods.sort_by { |m| m.name }.each_with_index { |m, num|
           is_static_method = respond_to?(m.name)
           method_object = is_static_method ? self.method(m.name) : (instance ? instance.method(m.name) : nil)

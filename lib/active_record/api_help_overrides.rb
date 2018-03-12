@@ -108,7 +108,8 @@ ActiveRecord::Scoping::Named::ClassMethods.module_eval do
     end
 
     self.scope_names ||= {}
-    self.scope_names[name] = block ? block.try(:parameters) : body.try(:parameters)
+    self.scope_names[self] ||= {}
+    self.scope_names[self][name] = block ? block.try(:parameters) : body.try(:parameters)
 
     extension = Module.new(&block) if block
 
